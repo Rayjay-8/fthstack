@@ -1,0 +1,57 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>htmx + TinyDB + Flask Example</title>
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+</head>
+<body>
+    <h1>htmx + TinyDB + Flask Example</h1>
+
+    <!-- Formulário para enviar dados via POST -->
+    <form onsubmit="postData(event)">
+        <input type="text" id="dataInput" placeholder="Digite algo...">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <button onclick="getData()">Obter Dados</button>
+    <ul id="data-container"></ul>
+
+    <script>
+        function getData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    const dataContainer = document.getElementById('data-container');
+                    dataContainer.innerHTML = '';
+                    data.data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.data;  // Considerando que "data" é a chave que armazena os dados no TinyDB
+                        dataContainer.appendChild(li);
+                    });
+                });
+        }
+
+        function postData(event) {
+            event.preventDefault();  // Evita a recarga da página ao enviar o formulário
+
+            const dataInput = document.getElementById('dataInput').value;
+            fetch('/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: dataInput
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                getData();  // Atualiza os dados após o envio bem-sucedido
+            });
+        }
+    </script>
+</body>
+</html>
